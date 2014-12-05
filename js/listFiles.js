@@ -11,9 +11,19 @@ function listResults(entries) {
 
 	entries.forEach(function(entry, i) {
 		var a = $('<a></a>').attr('href', '#').text(entry.name).attr('onclick', 'examine(\''+ entry.name +'\')');
-		var a_delete = $('<a></a>').attr('href', '#').text('[ D ]').attr('onclick', 'deleteFile(\''+ entry.name +'\')');
-		var li = $('<li class="file"></li>').append(a);
-		li.append(a_delete);
+		//<span class="badge">14</span>
+		var a_delete = $('<a></a>').attr('href', '#').text('[ D ]').attr('onclick', 'deleteFile(\''+ entry.name +'\')').addClass("delete");
+		var span = $('<span></span>');
+		var li = $('<li class="file"></li>');
+		var icon = $('<i></i>').addClass("glyphicon").addClass("glyphicon-file").addClass("file-icon");
+
+		li.addClass("list-group-item");
+
+		span.append(icon);
+		span.append(a);
+		span.append(a_delete);
+
+		li.append(span);
 		file_list.append(li);
 	});
 

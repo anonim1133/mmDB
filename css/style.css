@@ -26,6 +26,11 @@ ul.nav a:hover{
 	display: none;
 }
 
-li.file > *{
-	padding-right: 10px;
+i.file-icon{
+	float: left;
 }
+
+a.delete{
+	float: right;
+}
+
