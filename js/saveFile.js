@@ -11,11 +11,10 @@ function getFile(event){
 
 	    //Support of multiple files
         for (var i = 0, f; f = files[i]; i++) {
-	        //Listing files
-	        var a = $('<a></a>').attr('href', '#').text(f.name);
-	        var li = $('<li></li>').append(a);
-
-	        file_list.append(li);
+			//Listing files
+			//var a = $('<a></a>').attr('href', '#').text("Nowy " + f.name).attr("class", "new-file").attr('onclick', 'deleteFile(\''+ f.name +'\')');
+			//var li = $('<li></li>').append(a);
+			//file_list.append(li);
 
 
 	        //Reading files
@@ -41,30 +40,15 @@ function saveFile(file) {
 	}, errorHandler);
 
 	function requestFS(grantedBytes) {
-		window.webkitRequestFileSystem(window.PERSISTENT, grantedBytes, function(fs) {
+		window.webkitRequestFileSystem(window.PERSISTENT, grantedBytes, function (fs) {
 			console.log("Saving: " + file.name);
 
-			//ToDo: Delete file if exists
-			fs.root.getFile(file.name, {create: true, exclusive: true}, function(file) {
-				showFileList();
-				//alert('A file ' + file.name + ' was created successfully.');
+			fs.root.getFile(file.name, {create: true, exclusive: true}, function (file) {
+				showFiles();
 			}, errorHandler);
+
 		}, errorHandler);
 	}
-
-
-			/*
-			 fs.root.getFile(file.name, {create: true}, function(DatFile) {
-			 console.log("getFile");
-			 DatFile.createWriter(function(DatContent) {
-			 console.log("writeFile");
-			 var blob = new Blob(file.content, {type: "blob"});
-			 DatContent.write(blob);
-			 console.log("fileWrited");
-			 });
-			 });
-			 */
-
 }
 
 function errorHandler(message){

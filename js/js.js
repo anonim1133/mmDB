@@ -11,9 +11,14 @@ $(document).ready(function(){
 
 	$( "#btn-list-files" ).click(function() {
 		console.log("List Files");
-		showFileList();
-		$("#add-files").hide("fast");
-		$("#doc-content").hide("fast");
-		$("#list-files").show("fast");
+		$('#file-list').text('');
+		showFiles();
 	});
 });
+
+function showFiles(){
+	showFileList();
+	$("#add-files").hide("fast");
+	$("#doc-content").hide("fast");
+	$("#list-files").show("fast");
+};

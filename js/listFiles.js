@@ -3,6 +3,7 @@ function toArray(list) {
 }
 
 function listResults(entries) {
+	$('#file-list').text('');
 	// Document fragments can improve performance since they're only appended
 	// to the DOM once. Only one browser reflow occurs.
 	var fragment = document.createDocumentFragment();
@@ -10,7 +11,7 @@ function listResults(entries) {
 	entries.forEach(function(entry, i) {
 
 		var li = document.createElement('li');
-		li.innerHTML = ['<span>', entry.name, '</span>'].join('');
+		li.innerHTML = ['<a href="#" onclick="deleteFile(\''+ entry.name +'\')">', entry.name, '</a>'].join('');
 		fragment.appendChild(li);
 	});
 
@@ -18,7 +19,6 @@ function listResults(entries) {
 }
 
 function onInitFs(fs) {
-
 	var dirReader = fs.root.createReader();
 	var entries = [];
 
@@ -35,9 +35,27 @@ function onInitFs(fs) {
 	};
 
 	readEntries(); // Start reading dirs.
-
 }
 
 function showFileList(){
 	window.webkitRequestFileSystem(window.PERSISTENT, 1024*1024, onInitFs, errorHandler);
+}
+
+function deleteFile(file){
+	navigator.webkitPersistentStorage.requestQuota (1024*1024*1024, function(grantedBytes) {
+		console.log ('requestQuota: ', arguments);
+		requestFS(grantedBytes);
+	}, errorHandler);
+
+	function requestFS(grantedBytes) {
+		window.webkitRequestFileSystem(window.PERSISTENT, grantedBytes, function(fs) {
+			fs.root.getFile(file, {create: false}, function(fileEntry) {
+				fileEntry.remove(function() {
+					console.log('File ' + file + 'removed.');
+					showFileList();
+				}, errorHandler);
+			}, errorHandler);
+
+		}, errorHandler);
+	}
 }
