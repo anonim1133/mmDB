@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta name="description" content="">
+		<meta name="author" content="">
+		<link rel="icon" href="../../favicon.ico">
+
+		<title>Multimedialne Bazy Danych</title>
+
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link href="css/justified-nav.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		
+		<script src="js/jquery-2.1.1.min.js"></script>
+		<script src="js/zip.js"></script>
+	</head>
+
+	<body>
+
+		<div class="container">
+
+			<div class="masthead">
+				<h3 class="text-muted">Multimedialne Bazy Danych</h3>
+				<ul class="nav nav-justified">
+					<li class="active"><a href="#">Dodaj</a></li>
+					<li><a href="files.html">Pliki</a></li>
+					<li><a href="search.html">Wyszukiwanie</a></li>
+				</ul>
+			</div>
+
+			<!-- Jumbotron -->
+			<div class="jumbotron">
+				<h1>Dodaj plik tekstowy!</h1>
+				<p class="lead">
+					Twój plik powinien być w formacie Open Document Text (.odt).
+				</p>
+				<div class="col-xs-4 col-sm-offset-4">
+					<label class="hideInput btn btn-lg btn-success">Wybierz plik<input id="uploadFileInput" type="file" name="file" /></label>
+				</div>
+			</div>
+
+            <div id="doc-content">
+
+            </div>
+
+            <div>
+                <ul id="file-list">
+
+                </ul>
+            </div>
+
+			<!-- Site footer -->
+			<div class="footer">
+				<p>&copy; Patrick Żurowski, Krzysztof Oleśków 2014</p>
+			</div>
+
+		</div> <!-- /container -->
+
+		<script>
+			function XmlMetaFile(xmlDoc) {
+				//console.log('meta');
+				//console.log(xmlDoc);
+                                
+                                var stats = xmlDoc.getElementsByTagName("document-statistic")[0];
+                                console.log( "Tabele: " + stats.getAttribute("meta:table-count") );
+                                console.log( "Obrazy: " + stats.getAttribute("meta:image-count") );
+                                console.log( "Strony: " + stats.getAttribute("meta:page-count") );
+                                console.log( "Obiekty: " + stats.getAttribute("meta:object-count") );
+                                console.log( "Paragrafy: " + stats.getAttribute("meta:paragraph-count") );
+                                console.log( "Słowa: " + stats.getAttribute("meta:word-count") );
+                                console.log( "Znaki: " + stats.getAttribute("meta:character-count") );
+			}
+			
+			function XmlContentFile(xmlDoc) {
+				//console.log('content');
+				//console.log(xmlDoc);
+				//console.log( xmlDoc.getElementsByTagName("body").item(0));
+
+                var content = document.getElementById("doc-content");
+
+                content.textContent = xmlDoc.getElementsByTagName("body")[0].innerHTML;
+			}
+			
+			function DoSomethingWithTextFile(file) {
+				var reader = new FileReader();
+
+				reader.onload = function(e) {
+					var textContent = reader.result;
+					
+					var parser = new DOMParser();
+					var xmlDoc = parser.parseFromString(textContent, "text/xml");
+					
+					if ( (xmlDoc.getElementsByTagName("document-meta")) && (xmlDoc.getElementsByTagName("document-meta").length) ) {
+						XmlMetaFile(xmlDoc);
+					}
+					else if ( (xmlDoc.getElementsByTagName("document-content")) && (xmlDoc.getElementsByTagName("document-content").length) ) {
+						XmlContentFile(xmlDoc);
+					}
+				}
+
+				reader.readAsText(file);
+			}
+			
+			(function(obj) {
+				var requestFileSystem = obj.webkitRequestFileSystem || obj.mozRequestFileSystem || obj.requestFileSystem;
+
+				function onerror(message) {
+					alert(message);
+				}
+
+				function createTempFile(callback) {
+					var tmpFilename = "tmp.dat";
+					requestFileSystem(TEMPORARY, 4 * 1024 * 1024 * 1024, function(filesystem) {
+						function create() {
+							filesystem.root.getFile(tmpFilename, {
+								create : true
+							}, function(zipFile) {
+								callback(zipFile);
+							});
+						}
+
+						filesystem.root.getFile(tmpFilename, null, function(entry) {
+							entry.remove(create, create);
+						}, create);
+					});
+				}
+
+				var model = (function() {
+					var URL = obj.webkitURL || obj.mozURL || obj.URL;
+
+					return {
+						getEntries : function(file, onend) {
+							zip.createReader(new zip.BlobReader(file), function(zipReader) {
+								zipReader.getEntries(onend);
+							}, onerror);
+						},
+						getEntryFile : function(entry, creationMethod, onend, onprogress) {
+							var writer, zipFileEntry;
+
+							function getData() {
+								entry.getData(writer, function(blob) {
+									var blobURL = creationMethod == "Blob" ? URL.createObjectURL(blob) : zipFileEntry.toURL();
+									onend(blobURL);
+								}, onprogress);
+							}
+
+							if (creationMethod == "Blob") {
+								writer = new zip.BlobWriter();
+								getData();
+							} else {
+								createTempFile(function(fileEntry) {
+									zipFileEntry = fileEntry;
+									writer = new zip.FileWriter(zipFileEntry);
+									getData();
+								});
+							}
+						}
+					};
+				})();
+
+				(function() {
+					var fileInput = document.getElementById("uploadFileInput");
+					var unzipProgress = document.createElement("progress");
+					var fileList = document.getElementById("file-list");
+					//var creationMethodInput = document.getElementById("creation-method-input");
+					var creationMethodInput = "Blob";
+
+					function download(entry, li, a) {
+						model.getEntryFile(entry, creationMethodInput.value, function(blobURL) {
+							var clickEvent = document.createEvent("MouseEvent");
+							if (unzipProgress.parentNode)
+								unzipProgress.parentNode.removeChild(unzipProgress);
+							unzipProgress.value = 0;
+							unzipProgress.max = 0;
+							clickEvent.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+							a.href = blobURL;
+							a.download = entry.filename;
+							a.dispatchEvent(clickEvent);
+						}, function(current, total) {
+							unzipProgress.value = current;
+							unzipProgress.max = total;
+						})
+					}
+
+					if (typeof requestFileSystem == "undefined")
+						creationMethodInput.options.length = 1;
+					fileInput.addEventListener('change', function() {
+						//fileInput.disabled = true;
+                        //DoSomethingWithTextFile(fileInput.files[0]);
+						model.getEntries(fileInput.files[0], function(entries) {
+							fileList.innerHTML = "";
+							entries.forEach(function(entry) {
+
+                                var li=document.createElement('li');
+								var a = document.createElement("a");
+								a.textContent = entry.filename;
+								a.href = "#";
+								a.addEventListener("click", function(event) {
+									if (!a.download) {
+										download(entry, null, a);
+										event.preventDefault();
+										return false;
+									}
+								}, false);
+
+                                li.appendChild(a);
+                                //fileList.appendChild(li);
+								
+								if (entry.filename == "meta.xml") {
+  									download(entry, null, a);
+
+								}
+								
+								if (entry.filename == "content.xml") {
+									download(entry, null, a);
+								}
+							});
+						});
+					}, false);
+				})();
+
+			})(this);
+		</script>
+		
+	</body>
+</html>
