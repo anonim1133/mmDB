@@ -7,12 +7,14 @@ function listResults(entries) {
 	// Document fragments can improve performance since they're only appended
 	// to the DOM once. Only one browser reflow occurs.
 	var fragment = document.createDocumentFragment();
+	var file_list = $('#file-list');
 
 	entries.forEach(function(entry, i) {
-
-		var li = document.createElement('li');
-		li.innerHTML = ['<a href="#" onclick="deleteFile(\''+ entry.name +'\')">', entry.name, '</a>'].join('');
-		fragment.appendChild(li);
+		var a = $('<a></a>').attr('href', '#').text(entry.name).attr('onclick', 'examine(\''+ entry.name +'\')');
+		var a_delete = $('<a></a>').attr('href', '#').text('[ D ]').attr('onclick', 'deleteFile(\''+ entry.name +'\')');
+		var li = $('<li class="file"></li>').append(a);
+		li.append(a_delete);
+		file_list.append(li);
 	});
 
 	document.querySelector('#file-list').appendChild(fragment);
