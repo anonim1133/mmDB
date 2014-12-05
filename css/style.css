@@ -25,3 +25,7 @@ ul.nav a:hover{
 #add-files, #list-files, #doc-content{
 	display: none;
 }
+
+li.file > *{
+	padding-right: 10px;
+}

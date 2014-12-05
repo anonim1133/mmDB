@@ -11,12 +11,6 @@ function getFile(event){
 
 	    //Support of multiple files
         for (var i = 0, f; f = files[i]; i++) {
-			//Listing files
-			//var a = $('<a></a>').attr('href', '#').text("Nowy " + f.name).attr("class", "new-file").attr('onclick', 'deleteFile(\''+ f.name +'\')');
-			//var li = $('<li></li>').append(a);
-			//file_list.append(li);
-
-
 	        //Reading files
 	        var reader = new FileReader();
 
@@ -34,8 +28,10 @@ function getFile(event){
 }
 
 function saveFile(file) {
+
+
 	navigator.webkitPersistentStorage.requestQuota (1024*1024*1024, function(grantedBytes) {
-		console.log ('requestQuota: ', arguments);
+		//console.log ('requestQuota: ', arguments);
 		requestFS(grantedBytes);
 	}, errorHandler);
 
@@ -43,7 +39,20 @@ function saveFile(file) {
 		window.webkitRequestFileSystem(window.PERSISTENT, grantedBytes, function (fs) {
 			console.log("Saving: " + file.name);
 
-			fs.root.getFile(file.name, {create: true, exclusive: true}, function (file) {
+			fs.root.getFile(file.name, {create: true, exclusive: true}, function (f) {
+				f.createWriter(function(fileWriter) {
+					fileWriter.onwriteend = function (e) {
+						console.log('Write completed.');
+					};
+
+					fileWriter.onerror = function (e) {
+						console.log('Write failed: ' + e.toString());
+					};
+
+					// Create a new Blob and write it to log.txt.
+					fileWriter.write(file);
+				});
+
 				showFiles();
 			}, errorHandler);
 
