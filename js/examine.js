@@ -37,6 +37,14 @@ function unzip(blob, what){
 						case 'S':
 							if(entry.filename == "meta.xml") {
 								console.log(" [ S ] ");
+								var div = $('#doc-stats');
+								var h1 = $('<h1></h1>');
+
+								div.text('');
+
+								h1.text(blob.name);
+								div.append(h1);
+
 								entry.getData(new zip.TextWriter(), function (text) {
 									reader.close(function () {
 									});
@@ -84,16 +92,31 @@ function DoSomethingWithTextFile(file) {
 }
 
 function XmlMetaFile(xmlDoc) {
+	var div = $('#doc-stats');
+	var ul = $('<ul id="file-stats-list" class="list-group">');
+
 	var stats = xmlDoc.getElementsByTagName("document-statistic")[0];
 	if(stats !== 'undefined'){
-		console.log( "Tabele: " + stats.getAttribute("meta:table-count") );
-		console.log( "Obrazy: " + stats.getAttribute("meta:image-count") );
-		console.log( "Strony: " + stats.getAttribute("meta:page-count") );
-		console.log( "Obiekty: " + stats.getAttribute("meta:object-count") );
-		console.log( "Paragrafy: " + stats.getAttribute("meta:paragraph-count") );
-		console.log( "Słowa: " + stats.getAttribute("meta:word-count") );
-		console.log( "Znaki: " + stats.getAttribute("meta:character-count") );
+		var li_strony = $('<li></li>').addClass("list-group-item").text('Strony: ' + stats.getAttribute("meta:page-count"));
+		var li_tabele = $('<li></li>').addClass("list-group-item").text('Tabele: ' + stats.getAttribute("meta:table-count"));
+		var li_obiekt = $('<li></li>').addClass("list-group-item").text('Obiekty :' + stats.getAttribute("meta:object-count"));
+		var li_obrazy = $('<li></li>').addClass("list-group-item").text('Obrazy: ' + stats.getAttribute("meta:image-count"));
+		var li_paragr = $('<li></li>').addClass("list-group-item").text('Paragrafy: ' + stats.getAttribute("meta:paragraph-count"));
+		var li_slowa = $('<li></li>').addClass("list-group-item").text('Słowa: ' + stats.getAttribute("meta:word-count"));
+		var li_znaki = $('<li></li>').addClass("list-group-item").text('Znaki: ' + stats.getAttribute("meta:character-count"));
+
+		ul.append(li_strony);
+		ul.append(li_tabele);
+		ul.append(li_obiekt);
+		ul.append(li_obrazy);
+		ul.append(li_paragr);
+		ul.append(li_slowa);
+		ul.append(li_znaki);
 	}
+
+	div.append(ul);
+
+	showStats();
 }
 
 function xmlToVector(xml){

@@ -22,7 +22,7 @@ ul.nav a:hover{
 	box-shadow: inset 0 3px 7px rgba(0,0,0,.15);
 }
 
-#add-files, #list-files, #doc-content{
+#add-files, #list-files, #doc-content, #doc-stats{
 	display: none;
 }
 
