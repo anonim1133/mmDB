@@ -4,9 +4,6 @@ function toArray(list) {
 
 function listResults(entries) {
 	$('#file-list').text('');
-	// Document fragments can improve performance since they're only appended
-	// to the DOM once. Only one browser reflow occurs.
-	var fragment = document.createDocumentFragment();
 	var file_list = $('#file-list');
 
 	entries.forEach(function(entry, i) {
@@ -16,16 +13,19 @@ function listResults(entries) {
 		var span = $('<span></span>');
 		var li = $('<li></li>');
 		var icon = $('<i></i>');
+		var check = $('<input type="checkbox"/>');
 
 		li.addClass("list-group-item");
 
 		icon.addClass("glyphicon").addClass("glyphicon-file").addClass("left");
+		check.attr('name', 'file').attr('value', entry.name).addClass('left');
 		a_stats.attr('href', '#stats').text('[ S ]').attr('onclick', 'stats(\''+ entry.name +'\', "S")').addClass("left").attr('title', 'Statystyki');
 		a_vector.attr('href', '#vector').text('[ V ]').attr('onclick', 'stats(\''+ entry.name +'\', "V")').addClass("left").attr('title', 'Wektor');
 		a_delete.attr('href', '#delete').text('[ D ]').attr('onclick', 'deleteFile(\''+ entry.name +'\')').addClass("right").attr('title', 'Usuń');
 		span.text(entry.name);
 
 		li.append(icon);
+		li.append(check);
 		li.append(a_stats);
 		li.append(a_vector);
 		li.append(span);
@@ -35,7 +35,12 @@ function listResults(entries) {
 		file_list.append(li);
 	});
 
-	document.querySelector('#file-list').appendChild(fragment);
+	var file_list = $('#file-list');
+	var button = $('<button class="btn btn-lg btn-success btn-diff-vector right"></button>').text("Porównaj vectory").click(function(){
+		diffVector();
+	});
+
+	file_list.append(button)
 }
 
 function onInitFs(fs) {

@@ -22,7 +22,7 @@ ul.nav a:hover{
 	box-shadow: inset 0 3px 7px rgba(0,0,0,.15);
 }
 
-#add-files, #list-files, #doc-content, #doc-stats{
+#add-files, #list-files, #doc-content, #doc-stats, #doc-vectors{
 	display: none;
 }
 
@@ -36,3 +36,14 @@ ul.nav a:hover{
 	padding-right: 8px;
 }
 
+.btn-diff-vector{
+	margin-top: 4px;
+}
+
+p.vector{
+	font-size: 10px;
+}
+
+.reset-btn{
+	margin-bottom: 64px;
+}

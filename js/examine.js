@@ -143,5 +143,17 @@ function xmlToVector(xml){
 			vector += 'O->';
 	});
 
-	console.log(vector);
+	var p = $('<p></p>');
+	p.text(vector).addClass('vector');
+
+	$('#doc-vectors').append(p);
+
+	showVectors();
+}
+
+function diffVector(){
+	var files = $('input[type="checkbox"]:checked');
+	files.each(function(){
+		stats($(this).attr('value'), 'V');
+	});
 }

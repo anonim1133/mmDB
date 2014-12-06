@@ -5,46 +5,60 @@ $(document).ready(function(){
 	$( "#btn-add-files" ).click(function(){
 		console.log("Add Files");
 
-		$("#list-files").hide( "fast");
-		$("#doc-content").hide( "fast");
 		$("#add-files").show("fast");
-		$("#doc-stats").hide( "fast");
+		$("#list-files").hide("fast");
+		$("#doc-content").hide("fast");
+		$("#doc-stats").hide("fast");
+		$("#doc-vectors").hide("fast");
 	});
 
 	$( "#btn-list-files" ).click(function(){
 		console.log("List Files");
 
-		$("#list-files").show("fast");
-		$("#doc-content").hide( "fast");
-		$("#add-files").hide("fast");
-		$("#doc-stats").hide( "fast");
-
-		$('#file-list').text('');
 		showFiles();
 	});
 
 	$( "#btn-doc-stats" ).click(function(){
 		console.log("Doc stats");
 
-		$("#doc-stats").show( "fast");
-		$("#list-files").hide( "fast");
-		$("#doc-content").hide( "fast");
-		$("#add-files").hide("fast");
+		showStats();
+	});
+
+	$( "#btn-doc-vectors" ).click(function(){
+		console.log("Doc vectors");
+
+		showVectors();
 	});
 });
 
+function resetVectors(){
+	$("#doc-vectors").text('');
+	console.log('Reset Vectors');
+}
+
 function showFiles(){
 	showFileList();
-	$("#add-files").hide("fast");
-	$("#doc-content").hide("fast");
 	$("#list-files").show("fast");
+	$("#doc-content").hide("fast");
+	$("#add-files").hide("fast");
+	$("#doc-stats").hide("fast");
+	$("#doc-vectors").hide("fast");
+
+	$('#file-list').text('');
 };
 
 function showStats(){
-	console.log("Doc stats");
+	$("#doc-stats").show("fast");
+	$("#list-files").hide("fast");
+	$("#doc-content").hide("fast");
+	$("#add-files").hide("fast");
+	$("#doc-vectors").hide("fast");
+}
 
-	$("#doc-stats").show( "fast");
-	$("#list-files").hide( "fast");
-	$("#doc-content").hide( "fast");
+function showVectors(){
+	$("#doc-vectors").show("fast");
+	$("#doc-stats").hide("fast");
+	$("#list-files").hide("fast");
+	$("#doc-content").hide("fast");
 	$("#add-files").hide("fast");
 }
