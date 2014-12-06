@@ -10,20 +10,28 @@ function listResults(entries) {
 	var file_list = $('#file-list');
 
 	entries.forEach(function(entry, i) {
-		var a = $('<a></a>').attr('href', '#').text(entry.name).attr('onclick', 'examine(\''+ entry.name +'\')');
-		//<span class="badge">14</span>
-		var a_delete = $('<a></a>').attr('href', '#').text('[ D ]').attr('onclick', 'deleteFile(\''+ entry.name +'\')').addClass("delete");
+		var a_stats = $('<a></a>');
+		var a_vector = $('<a></a>');
+		var a_delete = $('<a></a>');
 		var span = $('<span></span>');
-		var li = $('<li class="file"></li>');
-		var icon = $('<i></i>').addClass("glyphicon").addClass("glyphicon-file").addClass("file-icon");
+		var li = $('<li></li>');
+		var icon = $('<i></i>');
 
 		li.addClass("list-group-item");
 
-		span.append(icon);
-		span.append(a);
-		span.append(a_delete);
+		icon.addClass("glyphicon").addClass("glyphicon-file").addClass("left");
+		a_stats.attr('href', '#stats').text('[ S ]').attr('onclick', 'stats(\''+ entry.name +'\', "S")').addClass("left").attr('title', 'Statystyki');
+		a_vector.attr('href', '#vector').text('[ V ]').attr('onclick', 'stats(\''+ entry.name +'\', "V")').addClass("left").attr('title', 'Wektor');
+		a_delete.attr('href', '#delete').text('[ D ]').attr('onclick', 'deleteFile(\''+ entry.name +'\')').addClass("right").attr('title', 'Usuń');
+		span.text(entry.name);
 
+		li.append(icon);
+		li.append(a_stats);
+		li.append(a_vector);
 		li.append(span);
+		li.append(a_delete);
+
+		//li.append(span);
 		file_list.append(li);
 	});
 
