@@ -35,7 +35,11 @@ function resetVectors(){
 	$("#doc-vectors").text('');
 	$("#doc-vectors").append($('<button class="btn btn-lg btn-primary btn-diff-vector reset-btn" onclick="compareVectors()">Porównaj</button>'));
 	$("#doc-vectors").append("\n");
+	$("#doc-vectors").append($('<button class="btn btn-lg btn-primary btn-diff-vector reset-btn" onclick="findLCS()"> L C S </button>'));
+	$("#doc-vectors").append("\n");
 	$("#doc-vectors").append($('<button class="btn btn-lg btn-danger btn-diff-vector reset-btn" onclick="resetVectors()">Reset</button>'));
+	$("#doc-vectors").append("\n");
+	$("#doc-vectors").append($('<div id="results"></div>'));
 
 }
 
