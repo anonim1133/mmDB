@@ -121,32 +121,41 @@ function XmlMetaFile(xmlDoc) {
 
 function xmlToVector(xml){
 	var body = xml.find("*").children();
-	var vector = '';
+	var br = $('<br />');
+	var vector = $('<p></p>');
 
 	body.each(function( index ) {
 		if($( this ).prop("tagName") == 'text:p' && $(this).text().length){
-			vector += 'P->';
+			vector.append('P');
+			vector.append($('<br />'));
 
 			$.each($(this).text().split(' '), (function(word){
-				vector += 'W->';
+				vector.append('W');
+				vector.append($('<br />'));
 			}));
 		}
 
 
-		if($( this ).prop("tagName") == 'table:table')
-			vector += 'T->';
+		if($( this ).prop("tagName") == 'table:table'){
+			vector.append('T');
+			vector.append($('<br />'));
+		}
 
-		if($( this ).prop("tagName") == 'draw:image')
-			vector += 'I->';
+		if($( this ).prop("tagName") == 'draw:image'){
+			vector.append('I');
+			vector.append($('<br />'));
+		}
 
-		if($( this ).prop("tagName") == 'draw:object')
-			vector += 'O->';
+		if($( this ).prop("tagName") == 'draw:object'){
+			vector.append('O');
+			vector.append($('<br />'));
+		}
 	});
 
-	var p = $('<p></p>');
-	p.text(vector).addClass('vector');
 
-	$('#doc-vectors').append(p);
+	vector.addClass('vector');
+
+	$('#doc-vectors').append(vector);
 
 	showVectors();
 }
@@ -155,5 +164,55 @@ function diffVector(){
 	var files = $('input[type="checkbox"]:checked');
 	files.each(function(){
 		stats($(this).attr('value'), 'V');
+	});
+}
+
+function compareVectors(){
+	var vector_container = $('#doc-vectors');
+	var vectors = $('p.vector');
+	var n = vectors.length;
+
+	var new_vectors = new Array(n);
+	for(i=0; i<n; i++){
+		new_vectors[i] = $('<p class="vector"></p>');
+	}
+
+	var max = 0;
+	vectors.each(function(i){
+		var l = $(this).text().length;
+		if(l > max)
+			max = l;
+
+		vectors[i] = $(this).text();
+	});
+
+	for (i = 0; i < max; i++) {
+		var eq = false;
+		var l_j = 0;
+
+		for(j=1; j<n; j++){
+			if(vectors[0][i] !== undefined && vectors[j][i] === vectors[0][i]){
+					new_vectors[j].append($('<span class="eq">' + vectors[0][i] + '</span>'));
+
+				eq = true;
+			}else {
+				if (vectors[j][i] !== undefined)
+					new_vectors[j].append($('<span class="n_eq">' + vectors[j][i] + '</span>'));
+			}
+
+			l_j = j;
+		}
+
+		if(eq)
+				new_vectors[0].append($('<span class="eq">' + vectors[0][i] + '</span>'));
+		else
+			if(vectors[0][i] !== undefined)
+				new_vectors[0].append($('<span class="n_eq">' + vectors[0][i] + '</span>'));
+	}
+
+	resetVectors();
+
+	$.each(new_vectors, function (i, vector) {
+		vector_container.append(vector);
 	});
 }

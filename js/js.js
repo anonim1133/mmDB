@@ -1,6 +1,5 @@
 $(document).ready(function(){
 	console.log("ONLOAD");
-	//document.getElementById('uploadFileInput').addEventListener('change', getFile, false);
 
 	$( "#btn-add-files" ).click(function(){
 		console.log("Add Files");
@@ -32,8 +31,12 @@ $(document).ready(function(){
 });
 
 function resetVectors(){
-	$("#doc-vectors").text('');
 	console.log('Reset Vectors');
+	$("#doc-vectors").text('');
+	$("#doc-vectors").append($('<button class="btn btn-lg btn-primary btn-diff-vector reset-btn" onclick="compareVectors()">Porównaj</button>'));
+	$("#doc-vectors").append("\n");
+	$("#doc-vectors").append($('<button class="btn btn-lg btn-danger btn-diff-vector reset-btn" onclick="resetVectors()">Reset</button>'));
+
 }
 
 function showFiles(){

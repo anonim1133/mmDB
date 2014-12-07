@@ -3,7 +3,7 @@ function getFile(event){
     /* Read the list of the selected files. */
 
     if (!event.target.files.length){
-		alert('Please select a file!');
+		alert('Nie wskazałeś żadnego pliku!');
 	    return;
     }else{
         var files = event.target.files;
