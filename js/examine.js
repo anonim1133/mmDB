@@ -226,29 +226,38 @@ function compareVectors(){
 }
 
 function findLCS(){
-	var vectors = $('p.vector');
+	var vectors = $('ul.vector');
 
 	var longest = 0;
 	vectors.each(function(i){
-		var l = $(this).text().length;
+		//var l = $(this).text().length;
+		var l = $($('ul.vector')[i]).find('li').size();
 		if(l > longest)
 			longest = l;
 
-		vectors[i] = $(this).text();
+		vectors[i] = $($('ul.vector')[i]).find('li');
 	});
 
 	var lcs = '';
 	var max = 0;
 	vectors.each(function(i, v1){
 		vectors.each(function(j, v2){
-			if(i != j){
+			if(i != j && i < j){
 				var tmp_max = 0;
 				var tmp_lcs = '';
+				var start_k = -1;
 
 				for(var k = 0; k < longest; k++) {
 					for(var m = 0; m < longest; m++) {
-						if (v1[k] !== undefined && v2[m] !== undefined && v1[k] === v2[m]) {
-							tmp_lcs += v1[k];
+						if (v1[k] !== undefined && v2[m] !== undefined && $(v1[k]).text() === $(v2[m]).text()) {
+
+							//Ustawiam k, do którego wrócę, po przejściu przez dane podciagi
+							if(start_k === -1){
+								console.log('startk: ' + k);
+								start_k = k;
+							}
+
+							tmp_lcs += $(v1[k]).text();
 							tmp_max++;
 							k++;
 						} else {
@@ -257,6 +266,12 @@ function findLCS(){
 								max = tmp_max;
 								m = -1;
 							}
+							//Wracam do k przy którym zacząłem poszukiwanie podciągu
+							if(start_k !== -1 && k !== longest){
+								k = start_k;
+							}
+
+							start_k = -1;
 							tmp_max = 0;
 							tmp_lcs = '';
 						}
@@ -272,6 +287,6 @@ function findLCS(){
 		$(v).text($.trim($(v).text()));
 	});
 
-	$('p.vector').highlight(lcs);
-	$('div#results').highlight(lcs);
+	//$('ul.vector').highlight(lcs);
+	//$('div#results').highlight(lcs);
 }
