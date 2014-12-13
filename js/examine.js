@@ -121,28 +121,42 @@ function XmlMetaFile(xmlDoc) {
 
 function xmlToVector(xml){
 	var body = xml.find("*").children();
-	var vector = $('<p></p>');
+	var vector = $('<ul></ul>');
 
 	body.each(function( index ) {
 		if($( this ).prop("tagName") == 'text:p' && $(this).text().length){
-			vector.append('P');
+			var slowa = $($(this).text().split(' '));
+			vector.append('<li>P' + slowa.size() + '</li>');
 
-			$.each($(this).text().split(' '), (function(word){
-				vector.append('W');
+			$.each(slowa, (function(i, word){
+				vector.append('<li>W' + word.length + '</li>');
 			}));
 		}
 
 
 		if($( this ).prop("tagName") == 'table:table'){
-			vector.append('T');
+			var row_count = $(this).find('table-row').size();
+			var column_count = $(this).find('table-column').size();
+			vector.append('<li>T' + row_count+column_count + '</li>');
 		}
 
 		if($( this ).prop("tagName") == 'draw:image'){
-			vector.append('R');
+			console.log($(this).parent());
+			var height = $(this).parent().attr('svg:height').match(/(\d)+\.(\d+)/g)[0];
+			var width = $(this).parent().attr('svg:width').match(/(\d)+\.(\d+)/g)[0];
+			var hash = Math.round(parseFloat(height)*parseFloat(width));
+			vector.append('<li>R' + hash + '</li>');
 		}
 
 		if($( this ).prop("tagName") == 'draw:object'){
-			vector.append('O');
+			//draw:frame draw:style-name="fr1" draw:name="Object1" text:anchor-type="as-char" svg:y="-0.377cm"
+			//				svg:width="2.731cm" svg:height="0.467cm" draw:z-index="0">
+			var height = $(this).parent().attr('svg:height').match(/(\d)+\.(\d+)/g)[0];
+			var width = $(this).parent().attr('svg:width').match(/(\d)+\.(\d+)/g)[0];
+			var y = $(this).parent().attr('svg:y').match(/(\d)+\.(\d+)/g)[0];
+			var z = $(this).parent().attr('draw:z-index');
+			var hash = Math.round(parseFloat(height)*parseFloat(width)+parseFloat(y)+parseFloat(z));
+			vector.append('<li>O' + hash + '</li>');
 		}
 	});
 
@@ -234,16 +248,11 @@ function findLCS(){
 				for(var k = 0; k < longest; k++) {
 					for(var m = 0; m < longest; m++) {
 						if (v1[k] !== undefined && v2[m] !== undefined && v1[k] === v2[m]) {
-							//console.log(v1[k] + ' = ' + v2[m]);
-							//console.log('K: ' + k + 'M: ' + m);
 							tmp_lcs += v1[k];
 							tmp_max++;
 							k++;
 						} else {
-							//console.log(v1[k] + ' != ' + v2[m]);
-							//console.log('.K: ' + k + 'M: ' + m);
 							if (tmp_max > max) {
-								//console.log('if: lcs: ' + tmp_lcs + ' max: ' + tmp_max);
 								lcs = tmp_lcs;
 								max = tmp_max;
 								m = -1;
