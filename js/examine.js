@@ -141,7 +141,6 @@ function xmlToVector(xml){
 		}
 
 		if($( this ).prop("tagName") == 'draw:image'){
-			console.log($(this).parent());
 			var height = $(this).parent().attr('svg:height').match(/(\d)+\.(\d+)/g)[0];
 			var width = $(this).parent().attr('svg:width').match(/(\d)+\.(\d+)/g)[0];
 			var hash = Math.round(parseFloat(height)*parseFloat(width));
@@ -177,12 +176,13 @@ function diffVector(){
 
 function compareVectors(){
 	var vector_container = $('#doc-vectors');
-	var vectors = $('p.vector');
+	var vectors = $('ul.vector');
 	var n = vectors.length;
 
+	//Tworzę nowe puste wektor
 	var new_vectors = new Array(n);
 	for(i=0; i<n; i++){
-		new_vectors[i] = $('<p class="vector"></p>');
+		new_vectors[i] = $('<ul class="vector"></ul>');
 	}
 
 	var max = 0;
