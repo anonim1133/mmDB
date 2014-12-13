@@ -57,15 +57,15 @@ ul.vector li{
 	margin-bottom: 64px;
 }
 
-span.eq, span.n_eq{
+li.eq, li.n_eq{
 	display: block;
 }
 
-span.eq{
+li.eq{
 	color: lawngreen;
 }
 
-span.n_eq{
+li.n_eq{
 	color:red;
 }
 

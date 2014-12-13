@@ -186,12 +186,12 @@ function compareVectors(){
 	}
 
 	var max = 0;
-	vectors.each(function(i){
+	vectors.each(function(i, li){
 		var l = $(this).text().length;
 		if(l > max)
 			max = l;
 
-		vectors[i] = $(this).text();
+		vectors[i] = $($('ul.vector')[i]).find('li');
 	});
 
 	for (i = 0; i < max; i++) {
@@ -199,23 +199,23 @@ function compareVectors(){
 		var l_j = 0;
 
 		for(j=1; j<n; j++){
-			if(vectors[0][i] !== undefined && vectors[j][i] === vectors[0][i]){
-					new_vectors[j].append($('<span class="eq">' + vectors[0][i] + '</span>'));
+			if(vectors[0][i] !== undefined && $(vectors[j][i]).text() === $(vectors[0][i]).text()){
+					new_vectors[j].append($('<li class="eq">' + $(vectors[0][i]).text() + '</li>'));
 
 				eq = true;
 			}else {
 				if (vectors[j][i] !== undefined)
-					new_vectors[j].append($('<span class="n_eq">' + vectors[j][i] + '</span>'));
+					new_vectors[j].append($('<li class="n_eq">' + $(vectors[j][i]).text() + '</li>'));
 			}
 
 			l_j = j;
 		}
 
 		if(eq)
-				new_vectors[0].append($('<span class="eq">' + vectors[0][i] + '</span>'));
+				new_vectors[0].append($('<li class="eq">' + $(vectors[0][i]).text() + '</li>'));
 		else
 			if(vectors[0][i] !== undefined)
-				new_vectors[0].append($('<span class="n_eq">' + vectors[0][i] + '</span>'));
+				new_vectors[0].append($('<li class="n_eq">' + $(vectors[0][i]).text() + '</li>'));
 	}
 
 	resetVectors();
