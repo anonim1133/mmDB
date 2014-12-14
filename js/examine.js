@@ -253,7 +253,6 @@ function findLCS(){
 
 							//Ustawiam k, do którego wrócę, po przejściu przez dane podciagi
 							if(start_k === -1){
-								console.log('startk: ' + k);
 								start_k = k;
 							}
 
@@ -287,6 +286,23 @@ function findLCS(){
 		$(v).text($.trim($(v).text()));
 	});
 
-	//$('ul.vector').highlight(lcs);
-	//$('div#results').highlight(lcs);
+	highlight(lcs);
+	$('div#results').highlight(lcs);
+}
+
+
+function highlight(lcs){
+	$('ul.vector').each(function(){
+		var pos = $(this).text().indexOf(lcs)
+		var str = $(this).text().substring(0, pos);
+		pos = str.match(/[a-zA-Z]/g).length;
+
+		var lcs_len = lcs.length;
+
+		$.each($(this).find('li'), function(i, li){
+			if(i >= pos && i < lcs_len+pos)
+				$(li).addClass('highlight');
+		});
+
+	});
 }
