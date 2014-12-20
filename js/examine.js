@@ -1,4 +1,10 @@
+var lastVectorFor = ''; // sorry, nie chciało mi się przekazywać parametrem w 1000 funkcjach :D
+
 function stats(filename, what){
+	if (what == 'V') {
+		lastVectorFor = filename;
+	}
+	
 	console.log("Examine");
 
 	navigator.webkitPersistentStorage.requestQuota (1024*1024*1024, function(grantedBytes) {
@@ -119,7 +125,84 @@ function XmlMetaFile(xmlDoc) {
 	showStats();
 }
 
+function addToTreeString(treeString, object) {
+	
+	if ((object.prop("tagName") == 'text:p') && (object.text().length)) {
+		treeString += '{"name":"paragraph","children":[';
+		var slowa = $(object.text().split(' '));
+
+		$.each(slowa, (function(i, word) {
+			treeString += '{"name":"word","size":' + word.length + '},';
+		}));
+	}
+	else if (object.prop("tagName") == 'table:table') {
+		treeString += '{"name":"table","children":[';
+	}
+	else if (object.prop("tagName") == 'draw:image') {
+		var height = object.parent().attr('svg:height').match(/(\d)+\.(\d+)/g)[0];
+		var width = object.parent().attr('svg:width').match(/(\d)+\.(\d+)/g)[0];
+		var hash = Math.round(parseFloat(height) * parseFloat(width));
+		treeString += '{"name":"image","size":' + parseInt(hash, 10) + '},';
+	}
+	else if (object.prop("tagName") == 'draw:object') {
+		// draw:frame draw:style-name="fr1" draw:name="Object1" text:anchor-type="as-char" svg:y="-0.377cm"
+		// svg:width="2.731cm" svg:height="0.467cm" draw:z-index="0">
+		var height = object.parent().attr('svg:height').match(/(\d)+\.(\d+)/g)[0];
+		var width = object.parent().attr('svg:width').match(/(\d)+\.(\d+)/g)[0];
+		var y = object.parent().attr('svg:y').match(/(\d)+\.(\d+)/g)[0];
+		var z = object.parent().attr('draw:z-index');
+		var hash = Math.round(parseFloat(height) * parseFloat(width) + parseFloat(y) + parseFloat(z));
+		treeString += '{"name":"object","size":' + parseInt(hash, 10) + '},';
+	}
+	
+	// recursion
+	object.children().each(function() {
+		treeString = addToTreeString(treeString, $(this));
+	});
+	
+	if ((object.prop("tagName") == 'text:p') && (object.text().length)) {
+		treeString += ']},';
+	}
+	else if (object.prop("tagName") == 'table:table') {
+		treeString += ']},';
+	}
+	
+	return treeString;
+}
+
+function createTree(body) {
+	console.log(body);
+	var treeString = '{"name":"body","children":[';
+	
+	body.children().each(function() {
+		treeString = addToTreeString(treeString, $(this));
+	});
+	
+	treeString += ']}';
+	
+	var find = ',}';
+	var re = new RegExp(find, 'g');
+	treeString = treeString.replace(re, '}');
+	
+	var find = ',]';
+	var re = new RegExp(find, 'g');
+	treeString = treeString.replace(re, ']');
+	
+	console.log(treeString);
+	
+	// let's store the json in the local storage
+	if (lastVectorFor) {		
+		var find = '\\.';
+		var re = new RegExp(find, 'g');
+		var key = 'jsontree_' + lastVectorFor.replace(re, '');
+		
+		localStorage[key] = treeString;
+	}
+}
+
 function xmlToVector(xml){
+	createTree(xml.find("body"));
+	
 	var body = xml.find("*").children();
 	var vector = $('<ul></ul>');
 

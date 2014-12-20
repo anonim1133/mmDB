@@ -14,20 +14,31 @@ function listResults(entries) {
 		var li = $('<li></li>');
 		var icon = $('<i></i>');
 		var check = $('<input type="checkbox"/>');
+		var a_tree = $('<a></a>');
 
 		li.addClass("list-group-item");
+
+		var find = '\\.';
+		var re = new RegExp(find, 'g');
+		var jsonkey = 'jsontree_' + entry.name.replace(re, '');
 
 		icon.addClass("glyphicon").addClass("glyphicon-file").addClass("left");
 		check.attr('name', 'file').attr('value', entry.name).addClass('left');
 		a_stats.attr('href', '#stats').text('[ S ]').attr('onclick', 'stats(\''+ entry.name +'\', "S")').addClass("left").attr('title', 'Statystyki');
 		a_vector.attr('href', '#vector').text('[ V ]').attr('onclick', 'stats(\''+ entry.name +'\', "V")').addClass("left").attr('title', 'Wektor');
 		a_delete.attr('href', '#delete').text('[ D ]').attr('onclick', 'deleteFile(\''+ entry.name +'\')').addClass("right").attr('title', 'Usuń');
+		a_tree.attr('href', 'tree.html?key=' + jsonkey).text('[ T ]').attr('target', '_blank').addClass("left").attr('title', 'Drzewo');
 		span.text(entry.name);
 
 		li.append(icon);
 		li.append(check);
 		li.append(a_stats);
 		li.append(a_vector);
+		if (localStorage[jsonkey]) {
+			// jeśli mamy w local storage wyliczone drzewo
+			// (drzewo wyliczane jest po kliknięciu na [V])
+			li.append(a_tree);
+		}
 		li.append(span);
 		li.append(a_delete);
 
