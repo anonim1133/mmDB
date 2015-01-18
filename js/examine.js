@@ -194,9 +194,72 @@ function createTree(body) {
 	if (lastVectorFor) {		
 		var find = '\\.';
 		var re = new RegExp(find, 'g');
-		var key = 'jsontree_' + lastVectorFor.replace(re, '');
+		var keyAddition = lastVectorFor.replace(re, '');
+		var key = 'jsontree_' + keyAddition;
 		
 		localStorage[key] = treeString;
+		
+		// let's make a hash, while we're here
+		makeAHash(treeString, keyAddition);
+	}
+}
+
+var howDeepDoWeGoWhenCreatingHashes = 3;
+
+function makeAHash(treeString, keyAddition) {
+	// now, let's create a hash
+	var object = JSON.parse(treeString);
+	for (var i = 0 ; i <= howDeepDoWeGoWhenCreatingHashes ; i++) {
+		// robimy kilka hashow
+		// hash_0 jest najbardziej ogolny
+		// hash_1 bedzie uwzglednial dzieci
+		// hash_2 bedzie uwzglednial dzieci dzieci
+		// etc...
+
+		// tworzymy hash_i
+		var hashString = '';
+		var simpleHashString = '';
+		var simplestHashInt = 0;
+		var objectsOnLevelJ = [];
+		objectsOnLevelJ.push(object); // zaczynamy od poziomu 0
+		var keyString = 'hash_' + i + '_' + keyAddition;
+		for (var j = 0 ; j <= i ; j++) {
+			// j to level na ktorym aktualnie sprawdzamy
+			if (j > 0) {
+				var tmpObjectsOnLevelJ = [];
+				$.each(objectsOnLevelJ, function(index, value) {
+					if ((value.children) && (value.children.length)) {
+						$.each(value.children, function(index2, value2) {
+							tmpObjectsOnLevelJ.push(value2);
+						});
+					}
+				});
+				objectsOnLevelJ = tmpObjectsOnLevelJ;
+			}
+			$.each(objectsOnLevelJ, function(index, value) {
+				var thisValueSize = 0;
+				if (value.size) {
+					thisValueSize = value.size;
+				}
+				if (value.children) {
+					thisValueSize = value.children.length;
+				}
+				hashString += value.name + thisValueSize;
+				
+				simpleHashString += thisValueSize + ' ';
+				
+				simplestHashInt += thisValueSize;
+			});
+		}
+		// hash
+		localStorage[keyString] = hashString;
+		
+		// simple hash
+		simpleHashString = simpleHashString.replace(/\s{2,}/g, ' ');
+		localStorage['simple_' + keyString] = $.trim(simpleHashString);
+		
+		// simplest hash
+		localStorage['simplest_' + keyString] = simplestHashInt;
 	}
 }
 
