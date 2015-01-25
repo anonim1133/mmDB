@@ -1,3 +1,7 @@
+.container{
+	padding-bottom: 64px;
+}
+
 .node {
 	cursor: pointer;
 }
@@ -94,3 +98,10 @@ li.n_eq{
 }
 
 .highlight { background-color: yellow }
+
+.footer{
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+
+}
