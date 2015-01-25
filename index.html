@@ -80,12 +80,12 @@
 				</div>
 
 				<div id="sql-content">
-					<table id="theResultTable">
+					<table id="theResultTable" class="table table-striped table-bordered">
 
 					</table>
 
 					<div class="col-xs-4 col-sm-offset-4">
-						<textarea id="sqlTextArea" class="form-control" rows="3"></textarea>
+						<textarea id="sqlTextArea" class="form-control" rows="3">SELECT filename, COUNT(words), id FROM files WHERE COUNT(pages) < 13 AND COUNT(words) > 21</textarea>
 						<button id="execSqlButton" type="submit" class="btn btn-default">Submit</button>
 					</div>
 				</div>

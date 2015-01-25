@@ -235,6 +235,9 @@ function printSqlResult(filenames, initialSelections, hashLevel) {
 	var resultsArray = [];
 	var selections = [];
 	
+	var theadArray = [];
+	var tbodyArray = [];
+	
 	// th
 	$.each(initialSelections, function(index, value) {
 		if ($.inArray(value, ['COUNT(words)', 'COUNT(tables)', 'COUNT(pages)', 'filename', 'hash']) != -1) {
@@ -242,6 +245,7 @@ function printSqlResult(filenames, initialSelections, hashLevel) {
 		}
 	});
 	resultsArray.push(selections);
+	theadArray.push(selections);
 	
 	// td's
 	$.each(filenames, function(index, f) {
@@ -264,17 +268,45 @@ function printSqlResult(filenames, initialSelections, hashLevel) {
 			}
 		});
 		resultsArray.push(tmpRow);
+		tbodyArray.push(tmpRow);
 	});
 	
 	//console.log(resultsArray);
 	
 	// displaying the array as a table:
-	$.each(resultsArray, function(index, row) {
+	// thead
+	var html = '<thead>';
+	$.each(theadArray, function(index, row) {
+		html += '<tr>';
 		$.each(row, function(index2, cell) {
-			//
+			html += '<th>' + cell + '</th>';
 		});
+		html += '</tr>';
 	});
+	html += '</thead><tbody>';
+	// tbody
+	$.each(tbodyArray, function(index, row) {
+		html += '<tr>';
+		$.each(row, function(index2, cell) {
+			html += '<td>' + cell + '</td>';
+		});
+		html += '</tr>';
+	});
+	html += '</tbody>';
+	
+	$('#theResultTable').html(html);
 }
+
+$(document).on('click', '#execSqlButton', function(e) {
+	e.preventDefault();
+	e.stopPropagation();
+	
+	var sqlString = $('#sqlTextArea').val().trim();
+	console.log(sqlString);
+	parseSqlString(sqlString);
+	
+	return false;
+});
 
 function DoSomethingWithTextFile(file) {
 	var parser = new DOMParser();
