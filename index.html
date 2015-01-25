@@ -35,6 +35,7 @@
 					<li><a id="btn-list-files" href="#">Wyświetl pliki</a></li>
 					<li><a id="btn-doc-stats" href="#">Statystyki dokumentu</a></li>
 					<li><a id="btn-doc-vectors" href="#">Wektory dokumentu</a></li>
+					<li><a id="btn-sql" href="#">SQL</a></li>
 				</ul>
 			</div>
 
@@ -76,6 +77,17 @@
 				<!-- Wyświetlanie dokumentu -->
 				<div id="doc-content">
 
+				</div>
+
+				<div id="sql-content">
+					<table id="theResultTable">
+
+					</table>
+
+					<div class="col-xs-4 col-sm-offset-4">
+						<textarea id="sqlTextArea" class="form-control" rows="3"></textarea>
+						<button id="execSqlButton" type="submit" class="btn btn-default">Submit</button>
+					</div>
 				</div>
 			</div>
 

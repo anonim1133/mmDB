@@ -9,6 +9,7 @@ $(document).ready(function(){
 		$("#doc-content").hide("fast");
 		$("#doc-stats").hide("fast");
 		$("#doc-vectors").hide("fast");
+		$("#sql-content").hide("fast");
 	});
 
 	$( "#btn-list-files" ).click(function(){
@@ -27,6 +28,12 @@ $(document).ready(function(){
 		console.log("Doc vectors");
 
 		showVectors();
+	});
+
+	$( "#btn-sql" ).click(function(){
+		console.log("SQL");
+
+		showSQL();
 	});
 });
 
@@ -50,6 +57,7 @@ function showFiles(){
 	$("#add-files").hide("fast");
 	$("#doc-stats").hide("fast");
 	$("#doc-vectors").hide("fast");
+	$("#sql-content").hide("fast");
 
 	$('#file-list').text('');
 };
@@ -60,10 +68,21 @@ function showStats(){
 	$("#doc-content").hide("fast");
 	$("#add-files").hide("fast");
 	$("#doc-vectors").hide("fast");
+	$("#sql-content").hide("fast");
 }
 
 function showVectors(){
 	$("#doc-vectors").show("fast");
+	$("#doc-stats").hide("fast");
+	$("#list-files").hide("fast");
+	$("#doc-content").hide("fast");
+	$("#add-files").hide("fast");
+	$("#sql-content").hide("fast");
+}
+
+function showSQL(){
+	$("#sql-content").show("fast");
+	$("#doc-vectors").hide("fast");
 	$("#doc-stats").hide("fast");
 	$("#list-files").hide("fast");
 	$("#doc-content").hide("fast");
