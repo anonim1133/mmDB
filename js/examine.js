@@ -1,8 +1,12 @@
 var lastVectorFor = ''; // sorry, nie chciało mi się przekazywać parametrem w 1000 funkcjach :D
+var lastStatFor = ''; // likewise ;)
 
 function stats(filename, what){
 	if (what == 'V') {
 		lastVectorFor = filename;
+	}
+	if (what == 'S') {
+		lastStatFor = filename;
 	}
 	
 	console.log("Examine");
@@ -81,6 +85,197 @@ function unzip(blob, what){
 	});
 }
 
+function parseSqlString(sqlString) {
+	///////////////////////////////////////////////////
+	//
+	// SELECT <what> FROM files WHERE <condition>
+	// There can be multiple <what>s separated by ", "
+	// There can be multiple <condition>s separated by " AND "
+	// 
+	// Accepted <what>s:
+	// - filename
+	// - hash
+	// - COUNT(words)
+	// - COUNT(pages)
+	// - COUNT(tables)
+	// 
+	// Accepted <condition>s:
+	// - "HASHLEVEL IS 2" (0-3)
+	// - "filename = article"
+	// - COUNT(words) > 2
+	// - COUNT(pages) < 3
+	// - COUNT(tables) = 1
+	// 
+	///////////////////////////////////////////////////
+	var myRegexp = /SELECT (.*?) FROM files WHERE (.*)/g;
+	var match = myRegexp.exec(sqlString);
+	var selectionsString = match[1];
+	var conditionsString = match[2];
+	console.log("Selecting: " + selectionsString);
+	console.log("Conditions: " + conditionsString);
+	
+	var conditions = [];
+	var selections = [];
+	
+	$.each(conditionsString.split("AND"), function(index, value) {
+		var condition = value.trim();
+		var pieces = condition.split(" ");		
+		var tmpC = [pieces[0], pieces[1], pieces[2]];		
+		conditions.push(tmpC);
+	});
+	
+	$.each(selectionsString.split(","), function(index, value) {
+		var selection = value.trim();
+		selections.push(selection);
+	});
+	
+	execSql(conditions, selections);
+}
+
+function myCompare(v1, v2, op) {
+	// v1 is the real database value
+	// v2 is the condition value
+	if ($.inArray(op, ['<', '>', '=', '<=', '>=']) == -1) {
+		return false;
+	}
+	
+	if ((op == '=') && (v1 = v2)) {
+		return true;
+	}
+	else if ((op == '>') && (v1 > v2)) {
+		return true;
+	}
+	else if ((op == '<') && (v1 < v2)) {
+		return true;
+	}
+	else if ((op == '>=') && (v1 >= v2)) {
+		return true;
+	}
+	else if ((op == '<=') && (v1 <= v2)) {
+		return true;
+	}
+	
+	return false;
+}
+
+function execSql(conditions, selections) {
+	var filenames = [];
+	
+	$.each(localStorage, function(index, value) {
+		if ((index.substr(0, 11)) == 'countpages_') {
+			var filename = index.substr(11);
+			if ("simplest_hash_0_" + filename in localStorage) {
+				filenames.push(filename.slice(0, -3));
+			}
+		}
+	});
+	
+	// hashlevel
+	var hashLevel = 0;
+	$.each(conditions, function(index, value) {
+		var s1 = value[0];
+		var s2 = value[2]
+		var op = value[1];
+		
+		if ((s1 == 'HASHLEVEL') && (op == 'IS')) {
+			var tmpH = parseInt(s2, 10);
+			if (tmpH < 0) {
+				hashLevel = 0;
+			}
+			else if (tmpH > 3) {
+				hashLevel = 3;
+			}
+			else {
+				hashLevel = tmpH;
+			}
+		}
+	});
+	console.log('Setting HASHLEVEL to ' + hashLevel);
+	
+	// rest of conditions
+	$.each(conditions, function(index, value) {
+		var s1 = value[0];
+		var s2 = value[2];
+		var op = value[1];
+		
+		if ((s1 == 'filename') && (op == '=')) {
+			filenames = $.grep(filenames, function(f) {
+				return f == s2;
+			});
+		}
+		else if (s1.substr(0, 5) == 'COUNT') {
+			var countWhat = s1.substr(6).slice(0, -1);
+			
+			if ($.inArray(countWhat, ['pages', 'words', 'tables']) == -1) {
+				return;
+			}
+			
+			var lsKeyPrefix = 'count' + countWhat + '_';
+			filenames = $.grep(filenames, function(f) {
+				var lsKey = lsKeyPrefix + f + 'odt';
+				var lsValue = parseInt(localStorage[lsKey], 10);
+				s2 = parseInt(s2, 10);
+				
+//				console.log('We want: ' + op + ' ' + s2);
+//				console.log('Really is: ' + lsValue);
+//				console.log('Result: ' + myCompare(lsValue, s2, op));
+				return myCompare(lsValue, s2, op);
+			});
+		}
+		
+	});
+	
+	console.log('These are the files that are left after applying conditions:');
+	console.log(filenames);
+	
+	printSqlResult(filenames, selections, hashLevel);
+}
+
+function printSqlResult(filenames, initialSelections, hashLevel) {
+	var resultsArray = [];
+	var selections = [];
+	
+	// th
+	$.each(initialSelections, function(index, value) {
+		if ($.inArray(value, ['COUNT(words)', 'COUNT(tables)', 'COUNT(pages)', 'filename', 'hash']) != -1) {
+			selections.push(value);
+		}
+	});
+	resultsArray.push(selections);
+	
+	// td's
+	$.each(filenames, function(index, f) {
+		var tmpRow = [];
+		$.each(selections, function(index2, s) {
+			if (s == 'COUNT(words)') {
+				tmpRow.push(localStorage['countwords_' + f + 'odt']);
+			}
+			else if (s == 'COUNT(pages)') {
+				tmpRow.push(localStorage['countpages_' + f + 'odt']);
+			}
+			else if (s == 'COUNT(tables)') {
+				tmpRow.push(localStorage['counttables_' + f + 'odt']);
+			}
+			else if (s == 'filename') {
+				tmpRow.push(f);
+			}
+			else if (s == 'hash') {
+				tmpRow.push(localStorage['simplest_hash_' + hashLevel + '_' + f + 'odt']);
+			}
+		});
+		resultsArray.push(tmpRow);
+	});
+	
+	//console.log(resultsArray);
+	
+	// displaying the array as a table:
+	$.each(resultsArray, function(index, row) {
+		$.each(row, function(index2, cell) {
+			//
+		});
+	});
+}
+
 function DoSomethingWithTextFile(file) {
 	var parser = new DOMParser();
 	var xmlDoc = parser.parseFromString(file, "text/xml");
@@ -97,12 +292,24 @@ function DoSomethingWithTextFile(file) {
 
 }
 
-function XmlMetaFile(xmlDoc) {
+function XmlMetaFile(xmlDoc) {	
 	var div = $('#doc-stats');
 	var ul = $('<ul id="file-stats-list" class="list-group">');
 
 	var stats = xmlDoc.getElementsByTagName("document-statistic")[0];
 	if(stats !== 'undefined'){
+		
+		// saving stats in localstorage
+		if (lastStatFor) {
+			var find = '\\.';
+			var re = new RegExp(find, 'g');
+			var keyAddition = lastStatFor.replace(re, '');
+			localStorage['counttables_' + keyAddition] = stats.getAttribute("meta:table-count");
+			localStorage['countpages_' + keyAddition] = stats.getAttribute("meta:page-count");
+			localStorage['countwords_' + keyAddition] = stats.getAttribute("meta:word-count");
+		}
+		// end-of saving stats in localstorage
+		
 		var li_strony = $('<li></li>').addClass("list-group-item").text('Strony: ' + stats.getAttribute("meta:page-count"));
 		var li_tabele = $('<li></li>').addClass("list-group-item").text('Tabele: ' + stats.getAttribute("meta:table-count"));
 		var li_obiekt = $('<li></li>').addClass("list-group-item").text('Obiekty :' + stats.getAttribute("meta:object-count"));
